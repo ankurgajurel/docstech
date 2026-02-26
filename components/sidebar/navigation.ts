@@ -1,4 +1,4 @@
-import { IconRocket, IconApi } from "@tabler/icons-react"
+import { IconRocket, IconApi, IconTerminal2 } from "@tabler/icons-react"
 
 export type NavItem = {
   title: string
@@ -29,5 +29,10 @@ export const docsNavigation: NavGroup[] = [
     title: "API Reference",
     icon: IconApi,
     items: [{ title: "REST API", href: "/api/rest" }],
+  },
+  {
+    title: "Tools",
+    icon: IconTerminal2,
+    items: [{ title: "API Playground", href: "/playground" }],
   },
 ]
