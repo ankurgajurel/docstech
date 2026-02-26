@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s — Docstech",
   },
   description:
-    "Documentation site powered by Docstech.",
+    "Enterprise documentation infrastructure for engineering teams shipping at scale.",
 };
 
 export default function RootLayout({

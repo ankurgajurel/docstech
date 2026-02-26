@@ -1,38 +1,56 @@
 ---
 title: Introduction
-description: Get started with DocsTech — a modern documentation platform.
+description: DocsTech is an enterprise documentation infrastructure for engineering teams shipping at scale.
 ---
 
 # Introduction
 
-DocsTech is a modern documentation platform built for developer teams. Ship beautiful docs that stay in sync with your codebase.
+DocsTech is a documentation infrastructure platform built for engineering organizations that operate at scale. It provides a unified authoring layer, real-time collaboration, and automated publishing pipelines — so your documentation ships as reliably as your code.
 
-## Why DocsTech?
+## Why Engineering Teams Choose DocsTech
 
-- **MDX-powered** — Write docs in Markdown with embedded React components.
-- **Git-native** — Content lives alongside your code. Every change is versioned.
-- **Fast by default** — Static generation with incremental builds. Pages load instantly.
-- **Fully themeable** — Ship on-brand docs with custom themes and layouts.
+- **MDX-native authoring** — Write in Markdown with full React component support. Embed live code samples, interactive diagrams, and API explorers directly into your pages.
+- **Git-backed source of truth** — Content lives in your repository. Every change goes through your existing review workflow — pull requests, CI checks, and branch previews included.
+- **Sub-second builds** — Incremental static generation with edge caching. Pages are pre-rendered at build time and served from the nearest PoP. Cold starts under 50ms.
+- **Multi-tenant theming** — Ship white-labeled documentation portals for each product line or customer segment. Full control over layout, typography, and color systems.
+- **Role-based access** — Granular permissions at the organization, team, and document level. Integrates with your existing IdP via SAML 2.0 and OIDC.
+- **Observability built in** — Track page views, search queries, and API reference usage. Understand what your users actually read.
+
+## Architecture Overview
+
+DocsTech runs as a Next.js application with a content layer that reads MDX files from your repository at build time. The content pipeline handles frontmatter extraction, cross-reference resolution, search index generation, and OpenAPI spec ingestion automatically.
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  MDX Content │────▶│ Build Pipeline│────▶│  Edge CDN    │
+│  (Git repo)  │     │ (incremental) │     │  (global)    │
+└──────────────┘     └──────────────┘     └──────────────┘
+                            │
+                     ┌──────▼──────┐
+                     │ Search Index │
+                     │ (auto-gen)   │
+                     └─────────────┘
+```
 
 ## Quick Example
 
-Create an MDX file in your content directory:
+Create an MDX file in your content directory with frontmatter metadata:
 
 ```mdx
 ---
-title: Getting Started
-description: Set up your first project in under 5 minutes.
+title: Authentication
+description: Configure SSO, API keys, and service account credentials.
 ---
 
-# Getting Started
+# Authentication
 
-Welcome to the docs!
+DocsTech supports multiple authentication strategies for different
+integration patterns. Choose the approach that fits your architecture.
 ```
 
-That's it. DocsTech picks it up, adds it to the sidebar, and renders it as a fully styled page.
+The build pipeline detects new files, adds them to the navigation tree, generates search entries, and deploys the updated site — no manual configuration required.
 
 ## Next Steps
 
-- [Installation](/installation) — Set up DocsTech locally.
-- [Quick Start](/quick-start) — Build your first docs site.
-- [REST API](/api/rest) — Integrate programmatically.
+- [Installation](/installation) — Clone the repository and start your docs site in under a minute.
+- [REST API](/api/rest) — Manage documentation projects, deployments, and access tokens programmatically.

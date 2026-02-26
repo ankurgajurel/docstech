@@ -76,9 +76,9 @@ export function Playground() {
       createPair("Content-Type", "application/json"),
       createPair("Accept", "application/json"),
     ])
-    setParams([createPair("userId", "1")])
-    setBody(JSON.stringify({ title: "Test Post", body: "This is a test request from the API Playground.", userId: 1 }, null, 2))
-    setAuth({ type: "bearer", token: "test-token-abc123" })
+    setParams([createPair("org_id", "org_4f8a2c1d")])
+    setBody(JSON.stringify({ name: "Payments Service Documentation", slug: "payments-service-docs", visibility: "private", default_branch: "main" }, null, 2))
+    setAuth({ type: "bearer", token: "dtk_test_a1b2c3d4e5f6g7h8" })
     setResponse(null)
     setError(null)
   }

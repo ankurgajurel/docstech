@@ -1,11 +1,11 @@
 ---
 title: REST API
-description: Complete reference for the REST API including authentication, endpoints, and response formats.
+description: Complete reference for the DocsTech REST API — manage projects, deployments, and access tokens programmatically.
 ---
 
 # REST API Reference
 
-The REST API lets you interact with your resources programmatically. All endpoints return JSON and use standard HTTP verbs.
+The DocsTech REST API enables programmatic management of documentation projects, deployments, team access, and content lifecycle operations. All endpoints accept and return JSON over HTTPS.
 
 ## Base URL
 
@@ -13,28 +13,34 @@ The REST API lets you interact with your resources programmatically. All endpoin
 https://api.docstech.dev/v1
 ```
 
-All API requests must be made over HTTPS. Calls made over plain HTTP will be rejected.
+All requests must be made over HTTPS. Requests over plain HTTP will receive a `301` redirect. TLS 1.2 is the minimum supported version.
 
 ## Authentication
 
-Authenticate by including your API key in the `Authorization` header:
+Include your API key in the `Authorization` header using the Bearer scheme:
 
 ```bash
-curl -H "Authorization: Bearer sk_live_abc123..." \
+curl -H "Authorization: Bearer dtk_live_a1b2c3d4e5f6..." \
   https://api.docstech.dev/v1/projects
 ```
 
-> **Note:** Keep your API keys secure. Do not expose them in client-side code or commit them to version control.
+API keys are scoped to an organization and can be created in the **Settings > API Keys** section of the dashboard. Keys prefixed with `dtk_live_` are production keys; `dtk_test_` keys operate against a sandboxed environment.
+
+> **Security:** Treat API keys as secrets. Do not expose them in client-side code, commit them to version control, or transmit them over unencrypted channels. Rotate keys immediately if a compromise is suspected.
 
 ## Rate Limits
 
-| Plan       | Requests/min | Burst |
-|------------|-------------|-------|
-| Free       | 60          | 10    |
-| Pro        | 600         | 100   |
-| Enterprise | 6000        | 1000  |
+Rate limits are enforced per API key on a sliding window basis:
 
-When you exceed the rate limit, the API returns a `429 Too Many Requests` response with a `Retry-After` header.
+- **Starter** — 60 requests/min, burst capacity of 10, 5 concurrent connections
+- **Team** — 600 requests/min, burst capacity of 100, 25 concurrent connections
+- **Enterprise** — 6,000 requests/min, burst capacity of 1,000, 100 concurrent connections
+
+When a rate limit is exceeded, the API returns `429 Too Many Requests` with the following headers:
+
+- `Retry-After` — Seconds until the next request is permitted
+- `X-RateLimit-Limit` — Maximum requests allowed in the current window
+- `X-RateLimit-Remaining` — Requests remaining in the current window
 
 ---
 
@@ -42,7 +48,7 @@ When you exceed the rate limit, the API returns a `429 Too Many Requests` respon
 
 ### List Projects
 
-Retrieve all projects for the authenticated user.
+Retrieve all documentation projects for the authenticated organization.
 
 ```
 GET /v1/projects
@@ -50,29 +56,45 @@ GET /v1/projects
 
 **Query Parameters**
 
-| Parameter | Type     | Default | Description                    |
-|-----------|----------|---------|--------------------------------|
-| `page`    | integer  | `1`     | Page number for pagination     |
-| `limit`   | integer  | `20`    | Items per page (max 100)       |
-| `status`  | string   | `all`   | Filter by status: `active`, `archived`, `all` |
+- `page` (integer, default `1`) — Page number for cursor-based pagination
+- `per_page` (integer, default `20`) — Results per page (max `100`)
+- `status` (string, default `all`) — Filter by project status: `active`, `archived`, `all`
+- `sort` (string, default `updated_at`) — Sort field: `created_at`, `updated_at`, `name`
+- `order` (string, default `desc`) — Sort direction: `asc` or `desc`
 
-**Response**
+**Response** `200 OK`
 
 ```json
 {
   "data": [
     {
-      "id": "proj_8a3b2c1d",
-      "name": "My Documentation",
+      "id": "proj_4f8a2c1d7e9b",
+      "name": "Platform API Reference",
+      "slug": "platform-api-reference",
       "status": "active",
-      "created_at": "2025-01-15T09:30:00Z",
-      "updated_at": "2025-02-20T14:22:00Z"
+      "visibility": "public",
+      "default_branch": "main",
+      "last_deployed_at": "2025-06-14T18:32:00Z",
+      "created_at": "2025-01-10T09:15:00Z",
+      "updated_at": "2025-06-14T18:32:00Z"
+    },
+    {
+      "id": "proj_7b3e9f2a1c8d",
+      "name": "Internal Engineering Handbook",
+      "slug": "internal-engineering-handbook",
+      "status": "active",
+      "visibility": "private",
+      "default_branch": "main",
+      "last_deployed_at": "2025-06-12T11:05:00Z",
+      "created_at": "2024-11-02T14:20:00Z",
+      "updated_at": "2025-06-12T11:05:00Z"
     }
   ],
   "meta": {
     "page": 1,
-    "limit": 20,
-    "total": 1
+    "per_page": 20,
+    "total": 2,
+    "total_pages": 1
   }
 }
 ```
@@ -89,7 +111,7 @@ GET /v1/projects
 
 ### Get Project
 
-Retrieve a single project by ID.
+Retrieve a single project by its unique identifier.
 
 ```
 GET /v1/projects/:id
@@ -97,24 +119,37 @@ GET /v1/projects/:id
 
 **Path Parameters**
 
-| Parameter | Type   | Description        |
-|-----------|--------|--------------------|
-| `id`      | string | The project ID     |
+- `id` (string) — Unique project identifier (e.g. `proj_4f8a2c1d7e9b`)
 
-**Response**
+**Response** `200 OK`
 
 ```json
 {
-  "id": "proj_8a3b2c1d",
-  "name": "My Documentation",
+  "id": "proj_4f8a2c1d7e9b",
+  "name": "Platform API Reference",
+  "slug": "platform-api-reference",
   "status": "active",
+  "visibility": "public",
+  "default_branch": "main",
   "settings": {
-    "theme": "default",
-    "custom_domain": "docs.example.com",
-    "visibility": "public"
+    "custom_domain": "docs.acmecorp.com",
+    "enforce_https": true,
+    "search_enabled": true,
+    "versioning_strategy": "branch-based",
+    "allowed_ip_ranges": ["10.0.0.0/8", "172.16.0.0/12"]
   },
-  "created_at": "2025-01-15T09:30:00Z",
-  "updated_at": "2025-02-20T14:22:00Z"
+  "team": {
+    "owner_id": "usr_9c2d4e6f8a1b",
+    "member_count": 12
+  },
+  "metrics": {
+    "total_pages": 147,
+    "monthly_page_views": 284500,
+    "avg_build_time_ms": 8200
+  },
+  "last_deployed_at": "2025-06-14T18:32:00Z",
+  "created_at": "2025-01-10T09:15:00Z",
+  "updated_at": "2025-06-14T18:32:00Z"
 }
 ```
 
@@ -129,7 +164,7 @@ GET /v1/projects/:id
 
 ### Create Project
 
-Create a new project.
+Provision a new documentation project within the authenticated organization.
 
 ```
 POST /v1/projects
@@ -139,34 +174,53 @@ POST /v1/projects
 
 ```json
 {
-  "name": "New Project",
+  "name": "Payments Service Documentation",
+  "slug": "payments-service-docs",
+  "visibility": "private",
+  "default_branch": "main",
   "settings": {
-    "theme": "default",
-    "visibility": "public"
+    "search_enabled": true,
+    "versioning_strategy": "tag-based"
   }
 }
 ```
 
-| Field              | Type   | Required | Description                          |
-|--------------------|--------|----------|--------------------------------------|
-| `name`             | string | Yes      | Project name (3-64 characters)       |
-| `settings.theme`   | string | No       | Theme identifier, defaults to `default` |
-| `settings.visibility` | string | No    | `public` or `private`, defaults to `public` |
+- `name` (string, **required**) — Human-readable project name (3–128 characters)
+- `slug` (string) — URL-safe identifier. Auto-generated from `name` if omitted
+- `visibility` (string) — `public` or `private`. Defaults to `public`
+- `default_branch` (string) — Git branch for production builds. Defaults to `main`
+- `settings.search_enabled` (boolean) — Enable full-text search. Defaults to `true`
+- `settings.versioning_strategy` (string) — `branch-based` or `tag-based`. Defaults to `branch-based`
 
 **Response** `201 Created`
 
 ```json
 {
-  "id": "proj_9x8w7v6u",
-  "name": "New Project",
+  "id": "proj_2e7f9a4b1c3d",
+  "name": "Payments Service Documentation",
+  "slug": "payments-service-docs",
   "status": "active",
+  "visibility": "private",
+  "default_branch": "main",
   "settings": {
-    "theme": "default",
     "custom_domain": null,
-    "visibility": "public"
+    "enforce_https": true,
+    "search_enabled": true,
+    "versioning_strategy": "tag-based",
+    "allowed_ip_ranges": []
   },
-  "created_at": "2025-02-27T10:00:00Z",
-  "updated_at": "2025-02-27T10:00:00Z"
+  "team": {
+    "owner_id": "usr_9c2d4e6f8a1b",
+    "member_count": 1
+  },
+  "metrics": {
+    "total_pages": 0,
+    "monthly_page_views": 0,
+    "avg_build_time_ms": null
+  },
+  "last_deployed_at": null,
+  "created_at": "2025-06-15T10:00:00Z",
+  "updated_at": "2025-06-15T10:00:00Z"
 }
 ```
 
@@ -176,22 +230,26 @@ POST /v1/projects
   method="POST"
   url="https://jsonplaceholder.typicode.com/posts"
   headers={[{ key: "Content-Type", value: "application/json" }]}
-  body={`{\n  "title": "New Project",\n  "body": "Project description",\n  "userId": 1\n}`}
+  body={`{\n  "name": "Payments Service Documentation",\n  "slug": "payments-service-docs",\n  "visibility": "private",\n  "default_branch": "main"\n}`}
 />
 
 ---
 
 ### Delete Project
 
-Permanently delete a project and all its content.
+Permanently delete a project, including all associated deployments, build artifacts, and analytics data. This action is irreversible.
 
 ```
 DELETE /v1/projects/:id
 ```
 
+**Path Parameters**
+
+- `id` (string) — Unique project identifier
+
 **Response** `204 No Content`
 
-No response body is returned.
+No response body is returned. Deletion is processed asynchronously — associated resources may take up to 30 seconds to be fully purged.
 
 **Try it out**
 
@@ -204,42 +262,75 @@ No response body is returned.
 
 ## Error Handling
 
-All errors follow a consistent format:
+All errors return a consistent JSON envelope:
 
 ```json
 {
   "error": {
-    "code": "invalid_request",
-    "message": "The 'name' field is required.",
-    "status": 400
+    "code": "validation_error",
+    "message": "The 'name' field must be between 3 and 128 characters.",
+    "request_id": "req_8f2a4b6c1d3e",
+    "status": 422
   }
 }
 ```
 
-**Common Error Codes**
+Every error response includes a `request_id` that can be provided to support for investigation.
 
-| Status | Code               | Description                      |
-|--------|--------------------|----------------------------------|
-| 400    | `invalid_request`  | Malformed request body or params |
-| 401    | `unauthorized`     | Missing or invalid API key       |
-| 403    | `forbidden`        | Insufficient permissions         |
-| 404    | `not_found`        | Resource does not exist          |
-| 429    | `rate_limited`     | Too many requests                |
-| 500    | `internal_error`   | Unexpected server error          |
+**Error Codes**
+
+- `400 bad_request` — Malformed JSON or invalid content type
+- `401 unauthorized` — Missing, expired, or invalid API key
+- `403 forbidden` — API key lacks required scope or permission
+- `404 not_found` — Resource does not exist or is not accessible
+- `409 conflict` — Resource already exists (e.g. duplicate slug)
+- `422 validation_error` — Request body failed schema validation
+- `429 rate_limited` — Request rate exceeded. See `Retry-After` header
+- `500 internal_error` — Unexpected server error. Retry with backoff
+- `503 service_unavailable` — Temporary outage. Check status.docstech.dev
+
+## Pagination
+
+List endpoints use cursor-based pagination. Response metadata includes `page`, `per_page`, `total`, and `total_pages` fields. To iterate through all results:
+
+```typescript
+let page = 1
+let hasMore = true
+
+while (hasMore) {
+  const res = await client.projects.list({ page, per_page: 100 })
+  process(res.data)
+  hasMore = page < res.meta.total_pages
+  page++
+}
+```
 
 ## SDKs
 
-Official client libraries are available for popular languages:
+Official client libraries handle authentication, pagination, retries, and type safety:
 
-- **JavaScript/TypeScript** — `npm install @docstech/sdk`
-- **Python** — `pip install docstech`
-- **Go** — `go get github.com/docstech/docstech-go`
+- **JavaScript/TypeScript** — `npm install @docstech/sdk` (v2.4.0)
+- **Python** — `pip install docstech` (v1.8.0)
+- **Go** — `go get github.com/docstech/docstech-go` (v0.12.0)
 
 ```typescript
 import { DocsTech } from "@docstech/sdk"
 
-const client = new DocsTech({ apiKey: "sk_live_abc123..." })
+const client = new DocsTech({
+  apiKey: process.env.DOCSTECH_API_KEY,
+  baseUrl: "https://api.docstech.dev/v1", // optional, defaults to production
+  timeout: 30_000, // request timeout in ms
+  retries: 3, // automatic retries with exponential backoff
+})
 
-const projects = await client.projects.list({ status: "active" })
-console.log(projects.data)
+const projects = await client.projects.list({
+  status: "active",
+  sort: "updated_at",
+  order: "desc",
+  per_page: 50,
+})
+
+for (const project of projects.data) {
+  console.log(`${project.name} — ${project.metrics.monthly_page_views} views/mo`)
+}
 ```

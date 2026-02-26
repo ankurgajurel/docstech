@@ -88,11 +88,12 @@ function CardExample() {
           className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale"
         />
         <CardHeader>
-          <CardTitle>Observability Plus is replacing Monitoring</CardTitle>
+          <CardTitle>Unified Observability is now Generally Available</CardTitle>
           <CardDescription>
-            Switch to the improved way to explore your data, with natural
-            language. Monitoring will no longer be available on the Pro plan in
-            November, 2025
+            Unified Observability consolidates metrics, traces, and logs into a
+            single query interface. Legacy Monitoring dashboards will be
+            deprecated on March 1, 2026. Migrate your existing monitors before
+            the cutoff to retain historical data.
           </CardDescription>
         </CardHeader>
         <CardFooter>
@@ -104,23 +105,24 @@ function CardExample() {
             <AlertDialogContent size="sm">
               <AlertDialogHeader>
                 <AlertDialogMedia>
-                  <IconBluetooth
+                  <IconShield
                   />
                 </AlertDialogMedia>
-                <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
+                <AlertDialogTitle>Approve deployment to production?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Do you want to allow the USB accessory to connect to this
-                  device?
+                  This will deploy build #2847 to the production environment.
+                  All active sessions will be gracefully drained over 30
+                  seconds.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Don&apos;t allow</AlertDialogCancel>
-                <AlertDialogAction>Allow</AlertDialogAction>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction>Approve &amp; Deploy</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
           <Badge variant="secondary" className="ml-auto">
-            Warning
+            Migration Required
           </Badge>
         </CardFooter>
       </Card>
@@ -128,19 +130,19 @@ function CardExample() {
   )
 }
 
-const frameworks = [
-  "Next.js",
-  "SvelteKit",
-  "Nuxt.js",
-  "Remix",
-  "Astro",
+const environments = [
+  "Production (us-east-1)",
+  "Staging (us-west-2)",
+  "Development (eu-west-1)",
+  "Sandbox (ap-southeast-1)",
+  "DR Failover (eu-central-1)",
 ] as const
 
 const roleItems = [
-  { label: "Developer", value: "developer" },
-  { label: "Designer", value: "designer" },
-  { label: "Manager", value: "manager" },
-  { label: "Other", value: "other" },
+  { label: "Platform Engineer", value: "platform-engineer" },
+  { label: "Tech Lead", value: "tech-lead" },
+  { label: "Engineering Manager", value: "engineering-manager" },
+  { label: "SRE", value: "sre" },
 ]
 
 function FormExample() {
@@ -155,8 +157,8 @@ function FormExample() {
     <Example title="Form">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>User Information</CardTitle>
-          <CardDescription>Please fill in your details below</CardDescription>
+          <CardTitle>Service Configuration</CardTitle>
+          <CardDescription>Configure deployment target and access parameters</CardDescription>
           <CardAction>
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -168,56 +170,56 @@ function FormExample() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel>File</DropdownMenuLabel>
+                  <DropdownMenuLabel>Resources</DropdownMenuLabel>
                   <DropdownMenuItem>
                     <IconFile
                     />
-                    New File
+                    New Service
                     <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <IconFolder
                     />
-                    New Folder
+                    New Workspace
                     <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
                   </DropdownMenuItem>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <IconFolderOpen
                       />
-                      Open Recent
+                      Recent Deployments
                     </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
                       <DropdownMenuSubContent>
                         <DropdownMenuGroup>
-                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
+                          <DropdownMenuLabel>Last 7 Days</DropdownMenuLabel>
                           <DropdownMenuItem>
                             <IconFileCode
                             />
-                            Project Alpha
+                            payments-api v3.12.1
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             <IconFileCode
                             />
-                            Project Beta
+                            auth-service v2.8.0
                           </DropdownMenuItem>
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger>
                               <IconDots
                               />
-                              More Projects
+                              Older Deployments
                             </DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
                               <DropdownMenuSubContent>
                                 <DropdownMenuItem>
                                   <IconFileCode
                                   />
-                                  Project Gamma
+                                  ingestion-pipeline v1.4.3
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
                                   <IconFileCode
                                   />
-                                  Project Delta
+                                  notification-hub v4.1.0
                                 </DropdownMenuItem>
                               </DropdownMenuSubContent>
                             </DropdownMenuPortal>
@@ -228,7 +230,7 @@ function FormExample() {
                           <DropdownMenuItem>
                             <IconFolderSearch
                             />
-                            Browse...
+                            View All Deployments
                           </DropdownMenuItem>
                         </DropdownMenuGroup>
                       </DropdownMenuSubContent>
@@ -238,13 +240,13 @@ function FormExample() {
                   <DropdownMenuItem>
                     <IconDeviceFloppy
                     />
-                    Save
+                    Save Configuration
                     <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <IconDownload
                     />
-                    Export
+                    Export as Terraform
                     <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -262,7 +264,7 @@ function FormExample() {
                   >
                     <IconEye
                     />
-                    Show Sidebar
+                    Show Service Graph
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
                     checked={notifications.sms}
@@ -275,7 +277,7 @@ function FormExample() {
                   >
                     <IconLayout
                     />
-                    Show Status Bar
+                    Show Health Metrics
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
@@ -432,15 +434,15 @@ function FormExample() {
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">
                 <Field>
-                  <FieldLabel htmlFor="small-form-name">Name</FieldLabel>
+                  <FieldLabel htmlFor="small-form-name">Service Name</FieldLabel>
                   <Input
                     id="small-form-name"
-                    placeholder="Enter your name"
+                    placeholder="e.g. payments-api"
                     required
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="small-form-role">Role</FieldLabel>
+                  <FieldLabel htmlFor="small-form-role">Owner</FieldLabel>
                   <Select items={roleItems} defaultValue={null}>
                     <SelectTrigger id="small-form-role">
                       <SelectValue />
@@ -459,16 +461,16 @@ function FormExample() {
               </div>
               <Field>
                 <FieldLabel htmlFor="small-form-framework">
-                  Framework
+                  Target Environment
                 </FieldLabel>
-                <Combobox items={frameworks}>
+                <Combobox items={environments}>
                   <ComboboxInput
                     id="small-form-framework"
-                    placeholder="Select a framework"
+                    placeholder="Select an environment"
                     required
                   />
                   <ComboboxContent>
-                    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
+                    <ComboboxEmpty>No environments found.</ComboboxEmpty>
                     <ComboboxList>
                       {(item) => (
                         <ComboboxItem key={item} value={item}>
@@ -480,10 +482,10 @@ function FormExample() {
                 </Combobox>
               </Field>
               <Field>
-                <FieldLabel htmlFor="small-form-comments">Comments</FieldLabel>
+                <FieldLabel htmlFor="small-form-comments">Deployment Notes</FieldLabel>
                 <Textarea
                   id="small-form-comments"
-                  placeholder="Add any additional comments"
+                  placeholder="Describe changes, rollback plan, or dependencies"
                 />
               </Field>
               <Field orientation="horizontal">
