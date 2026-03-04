@@ -12,27 +12,29 @@ export type NavGroup = {
 }
 
 /** Flat ordered list of all nav items across groups. */
-export function getFlatNavItems(): NavItem[] {
-  return docsNavigation.flatMap((group) => group.items)
+export function getFlatNavItems(apiItems?: NavItem[]): NavItem[] {
+  return buildNavigation(apiItems).flatMap((group) => group.items)
 }
 
-export const docsNavigation: NavGroup[] = [
-  {
-    title: "Getting Started",
-    icon: IconRocket,
-    items: [
-      { title: "Introduction", href: "/" },
-      { title: "Installation", href: "/installation" },
-    ],
-  },
-  {
-    title: "API Reference",
-    icon: IconApi,
-    items: [{ title: "REST API", href: "/api/rest" }],
-  },
-  {
-    title: "Tools",
-    icon: IconTerminal2,
-    items: [{ title: "API Playground", href: "/playground" }],
-  },
-]
+export function buildNavigation(apiItems?: NavItem[]): NavGroup[] {
+  return [
+    {
+      title: "Getting Started",
+      icon: IconRocket,
+      items: [
+        { title: "Introduction", href: "/" },
+        { title: "Getting Started", href: "/getting-started" },
+      ],
+    },
+    {
+      title: "API Reference",
+      icon: IconApi,
+      items: apiItems ?? [],
+    },
+    {
+      title: "Tools",
+      icon: IconTerminal2,
+      items: [{ title: "API Playground", href: "/playground" }],
+    },
+  ]
+}

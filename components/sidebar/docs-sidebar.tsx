@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-import { docsNavigation } from "@/components/sidebar/navigation"
+import { buildNavigation, type NavItem } from "@/components/sidebar/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -16,13 +16,14 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-export function DocsSidebar() {
+export function DocsSidebar({ apiItems }: { apiItems: NavItem[] }) {
   const pathname = usePathname()
+  const navigation = buildNavigation(apiItems)
 
   return (
     <Sidebar collapsible="icon">
       <SidebarContent className="pt-4">
-        {docsNavigation.map((group) => (
+        {navigation.map((group) => (
           <SidebarGroup key={group.title} className="px-4">
             <SidebarGroupLabel>
               <group.icon className="mr-2" />

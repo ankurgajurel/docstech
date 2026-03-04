@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { Providers } from "@/providers";
 import { LayoutShell } from "@/components/layout-shell";
+import { getApiNavItems } from "@/lib/content";
 
 const notoSans = Noto_Sans({
   variable: "--font-sans",
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s — Docstech",
   },
   description:
-    "Enterprise documentation infrastructure for engineering teams shipping at scale.",
+    "Documentation site powered by Docstech.",
 };
 
 export default function RootLayout({
@@ -34,13 +35,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const apiItems = getApiNavItems();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${notoSans.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <LayoutShell>{children}</LayoutShell>
+          <LayoutShell apiItems={apiItems}>{children}</LayoutShell>
         </Providers>
       </body>
     </html>

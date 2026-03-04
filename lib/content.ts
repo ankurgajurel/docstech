@@ -2,7 +2,7 @@ import { cache } from "react"
 import fs from "fs"
 import path from "path"
 import matter from "gray-matter"
-import { getFlatNavItems } from "@/components/sidebar/navigation"
+import { getFlatNavItems, type NavItem } from "@/components/sidebar/navigation"
 
 const CONTENT_DIR = path.join(process.cwd(), "content/docs")
 
@@ -39,7 +39,8 @@ export function getAdjacentPages(href: string): {
   prev: AdjacentPage | null
   next: AdjacentPage | null
 } {
-  const items = getFlatNavItems()
+  const apiItems = getApiNavItems()
+  const items = getFlatNavItems(apiItems)
 
   const index = items.findIndex((item) => item.href === href)
   if (index === -1) return { prev: null, next: null }
@@ -64,6 +65,32 @@ export function getAdjacentPages(href: string): {
     prev: resolve(items[index - 1]),
     next: resolve(items[index + 1]),
   }
+}
+
+/**
+ * Scan content/docs/api/ for MDX files and return nav items
+ * sorted by the `order` frontmatter field.
+ */
+export function getApiNavItems(): NavItem[] {
+  const apiDir = path.join(CONTENT_DIR, "api")
+  if (!fs.existsSync(apiDir)) return []
+
+  const files = fs.readdirSync(apiDir).filter((f) => f.endsWith(".mdx"))
+
+  const items = files.map((file) => {
+    const raw = fs.readFileSync(path.join(apiDir, file), "utf-8")
+    const { data } = matter(raw)
+    const slug = file.replace(".mdx", "")
+    return {
+      title: (data.title as string) || slug,
+      href: `/api/${slug}`,
+      order: (data.order as number) ?? 999,
+    }
+  })
+
+  items.sort((a, b) => a.order - b.order)
+
+  return items.map(({ title, href }) => ({ title, href }))
 }
 
 export function getAllDocSlugs(): string[][] {
